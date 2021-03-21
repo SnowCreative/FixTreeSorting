@@ -3,6 +3,16 @@ $tstart = explode(' ', microtime());
 $tstart = $tstart[1] + $tstart[0];
 set_time_limit(0);
 
+
+function getSnippetContent($filename) {
+    $o = file_get_contents($filename);
+    $o = str_replace('<?php','',$o);
+    $o = str_replace('?>','',$o);
+    $o = trim($o);
+    return $o;
+}
+
+
 /* define package names */
 define('PKG_NAME','FixTreeSorting');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
@@ -15,6 +25,7 @@ $sources= array (
 	'build' => $root .'_build/',
 	'resolvers' => $root . '_build/resolvers/',
 	'data' => $root . '_build/data/',
+	'events' => $root . '_build/data/events/',
 	'elements' => $root.'core/components/'.PKG_NAME_LOWER.'/elements/',
 	'source_core' => $root.'core/components/fixtreesorting',
 	'docs' => $root.'core/components/fixtreesorting/docs/',
@@ -59,14 +70,32 @@ $builder->putVehicle($vehicle);
 
 
 
+/* add plugins */
+$plugins = include $sources['data'].'transport.plugins.php';
+if (!is_array($plugins)) { $modx->log(modX::LOG_LEVEL_FATAL,'Adding plugins failed.'); }
+$attributes= array(
+    xPDOTransport::UNIQUE_KEY => 'name',
+    xPDOTransport::PRESERVE_KEYS => false,
+    xPDOTransport::UPDATE_OBJECT => true,
+    xPDOTransport::RELATED_OBJECTS => true,
+    xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array (
+        'PluginEvents' => array(
+            xPDOTransport::PRESERVE_KEYS => true,
+            xPDOTransport::UPDATE_OBJECT => false,
+            xPDOTransport::UNIQUE_KEY => array('pluginid','event'),
+        ),
+    ),
+);
+foreach ($plugins as $plugin) {
+    $vehicle = $builder->createVehicle($plugin, $attributes);
+    $builder->putVehicle($vehicle);
+}
+$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($plugins).' plugins.'); flush();
+unset($plugins,$plugin,$attributes);
 
 
 
 $modx->log(modX::LOG_LEVEL_INFO,'Adding file resolvers to category...');
-$vehicle->resolve('file',array(
-	'source' => $sources['source_assets'],
-	'target' => "return MODX_ASSETS_PATH . 'components/';",
-));
 $vehicle->resolve('file',array(
 	'source' => $sources['source_core'],
 	'target' => "return MODX_CORE_PATH . 'components/';",
@@ -78,9 +107,6 @@ $builder->setPackageAttributes(array(
 	'license' => file_get_contents($sources['docs'] . 'license.txt'),
 	'readme' => file_get_contents($sources['docs'] . 'readme.txt'),
 	'changelog' => file_get_contents($sources['docs'] . 'changelog.txt'),
-	'setup-options' => array(
-		'source' => $sources['build'].'setup.options.php',
-	),
 ));
 
 /* zip up package */
