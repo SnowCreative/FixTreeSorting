@@ -4,6 +4,7 @@
 // numerical order without gaps
 // fires on OnDocFormSave, OnDocFormDelete, and OnResourceSort
 
+
 if($modx->event->name == 'OnResourceSort') {
 	// if sorted by drag and drop, we just need to find out what parent to use,
 	// so get the id of the first modified node
