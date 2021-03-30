@@ -27,8 +27,8 @@ $sources= array (
 	'data' => $root . '_build/data/',
 	'events' => $root . '_build/data/events/',
 	'elements' => $root.'core/components/'.PKG_NAME_LOWER.'/elements/',
-	'source_core' => $root.'core/components/fixtreesorting',
-	'docs' => $root.'core/components/fixtreesorting/docs/',
+	'source_core' => $root.'core/components/'.PKG_NAME_LOWER,
+	'docs' => $root.'core/components/'.PKG_NAME_LOWER.'/docs/',
 );
 unset($root);
 
