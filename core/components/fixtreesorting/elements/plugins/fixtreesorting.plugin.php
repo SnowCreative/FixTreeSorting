@@ -24,8 +24,9 @@ if(is_numeric($thisparentid) && !empty($thiscontext)) {
 	$newindex = 0;
 	if(!empty($docs)){
 		foreach ($docs as $doc) {
-			$doc->set('menuindex',$newindex);
-			$doc->save();
+		  $thisdoc = $modx->getObject('modResource',array('id'=>$doc->id));
+			$thisdoc->set('menuindex',$newindex);
+			$thisdoc->save();
 			$newindex++;
 		}
 	}

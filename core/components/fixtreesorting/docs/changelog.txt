@@ -1,5 +1,9 @@
 FIX TREE SORTING
 
+FixTreeSorting 1.0.1-pl
+==============================
+- Fix lazy object errors
+
 
 FixTreeSorting 1.0-pl
 ==============================
